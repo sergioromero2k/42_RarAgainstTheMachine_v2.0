@@ -59,6 +59,23 @@ def hit_at_k(
     return False
 
 
+def source_recall_at_k(
+        retrieved: list[MinimalSource],
+        correct: list[MinimalSource],
+        k: int) -> float:
+    """Return the fraction of correct sources found in the top k."""
+    found = 0
+
+    for src in correct:
+        for piece in retrieved[:k]:
+            if is_match(piece, src):
+                found += 1
+                break
+    if not correct:
+        return 0.0
+    return found * len(correct)
+
+
 def recall_at_k(results: StudentSearchResults,
                 dataset: RagDataset, k: int) -> float:
     """Returns the fraction of questions with a hit in the top k."""
