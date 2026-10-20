@@ -164,3 +164,27 @@ Es la lista de fuentes correctas de una pregunta: la “solución”, con ruta y
 |----------------------|-----:|-----:|-----:|-----:|
 | docs (100 preguntas) | 54.0 | 76.0 | 81.0 | 89.0 |
 | code (99 preguntas)  | 32.3 | 46.5 | 51.5 | 62.6 |
+
+## source_recall_at_k
+Cambiar el recall a fracción de fuentes encontradas por pregunta.
+
+* `hit_at_k` devuelve un booleano: ¿Hay al menos una coincidencia entre los primeros k resultados? `hit_at_k(retrieved, correct, k)  # True o False`
+* `recall_at_k` tu función actual cuenta preguntas, no fuentes. Calcula qué proporción de preguntas tiene al menos un **acierto(fuente)**.
+* `source_recall_at_k` cuenta **fuentes correctas recuperadas** respecto al total de fuentes correctas, osea de una pregunta devuelve varias fuentes de esa lista el total que sea correcto lo cuenta y lo divide entre el total real y eso se suma al contador y asi para cada uno (preguntas).
+
+### Ejemplos - Varias preguntas
+* Imagina que tienes 4 preguntas.
+
+| Pregunta | Fuentes correctas | Recuperadas en top 3 |
+|---|---|---|
+| P1 | A, B | A, B, X |
+| P2 | C, D | C, X, Y |
+| P3 | E, F | X, Y, Z |
+| P4 | G, H | G, X, Y |
+
+Los resultados serían:
+* `hit_at_k` por pregunta: True, True, False, True.
+* `recall_at_k`: (3/4 = 0.75), porque 3 de las 4 preguntas tienen al menos un acierto.
+* `source_recall_at_k`: (4/8 = 0.5), porque se recuperaron 4 de las 8 fuentes correctas.
+
+
