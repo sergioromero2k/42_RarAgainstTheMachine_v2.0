@@ -80,7 +80,7 @@ class RAGSystem:
     ) -> None:
         pass
 
-    def evaluate(self, student_answer_path: str,
+    def evaluate(self, student_search_results_path: str,
                  dataset_path: str, k: int = 10) -> None:
         """Print Recall@k for the given search results."""
-        evaluate_files(student_answer_path, dataset_path, k)
+        evaluate_files(student_search_results_path, dataset_path, k)
