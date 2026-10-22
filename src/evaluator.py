@@ -47,48 +47,39 @@ def is_match(retrieved: MinimalSource, correct: MinimalSource) -> bool:
     return False
 
 
-def hit_at_k(
+def question_recall_at_k(
         retrieved: list[MinimalSource],
-        correct: list[MinimalSource], k: int) -> bool:
-    """Return True if any of the first k retrieved sources
-        matches any correct source."""
-    for piece in retrieved[:k]:
-        for src in correct:
+        correct: list[MinimalSource],
+        k: int) -> float:
+    """Return the share of correct sources found in the top k."""
+    if not correct:
+        return 0.0
+    found = 0
+    for src in correct:
+        for piece in retrieved[:k]:
             if is_match(piece, src):
-                return True
-    return False
+                found += 1
+                break
+    return found / len(correct)
 
 
 def source_recall_at_k(
         results: StudentSearchResults,
         dataset: RagDataset,
         k: int) -> float:
-    """...."""
+    """Mean over questions of the share of correct sources found."""
     index = build_results_index(results)
-    score_sum = 0
-    n_questions = 0
-
+    score_sum = 0.0
+    total = 0
     for question in dataset.rag_questions:
         if not isinstance(question, AnsweredQuestion):
             continue
-
+        total += 1
         retrieved = index[question.question_id]
-        correct = question.sources
-        found = 0
-
-        for src in correct:
-            for piece in retrieved[:k]:
-                if is_match(piece, src):
-                    found += 1
-                    break
-
-        if correct:
-            score_sum += found / len(correct)
-        n_questions += 1
-
-    if n_questions == 0:
+        score_sum += question_recall_at_k(retrieved, question.sources, k)
+    if total == 0:
         return 0.0
-    return score_sum/n_questions
+    return score_sum / total
 
 
 def recall_at_k(results: StudentSearchResults,
@@ -110,16 +101,16 @@ def recall_at_k(results: StudentSearchResults,
     return answered_hits / answered_total
 
 
-def evaluate_files(student_answer_path: str,
+def evaluate_files(student_search_results_path: str,
                    dataset_path: str, k: int = 10) -> None:
     """Print Recall@k for the given search results and dataset."""
     results = StudentSearchResults.model_validate_json(
-        Path(student_answer_path).read_text())
+        Path(student_search_results_path).read_text())
     dataset = RagDataset.model_validate_json(
         Path(dataset_path).read_text())
 
     for n in RECALL_KS:
         if n > k:
             continue
-        recall = recall_at_k(results, dataset, n)
+        recall = source_recall_at_k(results, dataset, n)
         print(f"recall@{n}: {recall * 100:.1f}%")

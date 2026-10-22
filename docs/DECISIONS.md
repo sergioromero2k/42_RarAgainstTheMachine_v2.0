@@ -187,4 +187,11 @@ Los resultados serían:
 * `recall_at_k`: (3/4 = 0.75), porque 3 de las 4 preguntas tienen al menos un acierto.
 * `source_recall_at_k`: (4/8 = 0.5), porque se recuperaron 4 de las 8 fuentes correctas.
 
+### Recall@k
+Para cada pregunta, `recall@k` = *(fuentes correctas encontradas en mis primeros k resultados) % (fuentes correctas totales de la pregunta)*.
+El `recall` final es la medida de ese valor sobre todas las preguntas respondidas que se incluyen en la evaluación.
 
+* `question_recall_at_k` - Medir una pregunta: ¿qué fracción de sus fuentes encontré?	    - `retrieved`, `correct`, `k`
+* `source_recall_at_k` - Recorrer todas las preguntas y hacer la media.	                  - `results`, `dataset`, `k`
+
+**Hipótesis para el tunning.** El IoU entre la unión, así que un chunk grande contra una fuente pequeña de IoU bajo aunque la contenga entera `(p. ej.chunk 0-2000 y fuente 1900-2100 → IoU 0.048 < 0.05, fallo)`. Chunks más pequeños podrían mejorar el recall. A comprobar con `--max_chunk_size`.
