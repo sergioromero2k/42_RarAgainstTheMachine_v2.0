@@ -82,25 +82,6 @@ def source_recall_at_k(
     return score_sum / total
 
 
-def recall_at_k(results: StudentSearchResults,
-                dataset: RagDataset, k: int) -> float:
-    """Returns the fraction of questions with a hit in the top k."""
-    index = build_results_index(results)
-    answered_hits = 0
-    answered_total = 0
-    for question in dataset.rag_questions:
-        if not isinstance(question, AnsweredQuestion):
-            continue
-        answered_total += 1
-        retrieved = index[question.question_id]
-        if hit_at_k(retrieved, question.sources, k):
-            answered_hits += 1
-
-    if answered_total == 0:
-        return 0.0
-    return answered_hits / answered_total
-
-
 def evaluate_files(student_search_results_path: str,
                    dataset_path: str, k: int = 10) -> None:
     """Print Recall@k for the given search results and dataset."""
