@@ -229,3 +229,7 @@ Caulquier cambio que subas esos números es una mejora. Si baja, lo deshaces. Po
 **Compromiso.** Los chunks que ya salen llenos (secciones largas troceadas por tamaño) no tienen solape; los demás conservan sus 200.
 
 **Verificación.** Máximo 2000 y 0 resultados >2000 en docs (1000) y code (990). Nueva línea base: docs 51/76/82/90 y code 32.3/46.5/50.5/62.6 (recall@1/3/5/10).
+
+## Texto indexado: ruta + contenido
+Cada chunk se indexa como `file_path + "\n" + contenido`. Las preguntas suelen nombrar el módulo (`triton_flash_attention`) y ese nombre está en la ruta, no en el código. Los rangos de caracteres no cambian. Resultado: code @5 50.5 → 59.6, docs @5 sin cambios (82). Tiene que haber un único documento por chunk en `texts` para que los índices de BM25 coincidan con `sources_metadata`.
+

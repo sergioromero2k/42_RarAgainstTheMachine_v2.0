@@ -25,7 +25,7 @@ class Indexer:
         self.sources_metadata = []
 
         for src, text in chunks:
-            texts.append(text)
+            texts.append(src.file_path + "\n" + text)
             self.sources_metadata.append(src)
 
         tokens = bm25s.tokenize(texts)
