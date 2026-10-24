@@ -152,6 +152,7 @@ class MarkdownChunker(BaseChunker):
 
             new_start = max(0, original_starts[i] - self.overlap_size)
             new_start = max(original_starts[i - 1], new_start)
+            new_start = max(new_start, chunk['end'] - max_chunk_size)
 
             chunk['text'] = content[new_start: chunk['end']]
             chunk['start'] = new_start

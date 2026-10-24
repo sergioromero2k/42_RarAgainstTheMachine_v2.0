@@ -1,9 +1,7 @@
 ## Día 12 — Recall alineado con el subject (en curso)
 
-- Leído el subject v2.0. Umbrales confirmados: recall@5 ≥ 80 % docs, ≥ 50 % code.
-- Recall redefinido: fracción de fuentes correctas encontradas por pregunta,
-  promediada entre preguntas (antes: acierto sí/no).
-- `evaluate` ahora usa `--student_search_results_path`, como pide el subject.
-- Verificado con datos públicos (docs 54/76/81/89, code 32/46/51/63) y con un caso
-  sintético de 2 fuentes.
-- Pendiente: tabla de experimentos y primer experimento con `max_chunk_size`.
+- Detectado y corregido: chunks de Markdown/texto de hasta 2200 caracteres (solape
+  sumado al tope). Ahora tope duro de 2000 verificado en docs y code.
+- Nueva línea base: docs 51/76/82/90, code 32.3/46.5/50.5/62.6.
+- Aviso: code @5 = 50 de 99 preguntas; una menos y baja del umbral del 50 %.
+- Día 13: tuning centrado en code (tokenización de identificadores, tamaños de chunk).

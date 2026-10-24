@@ -195,3 +195,37 @@ El `recall` final es la medida de ese valor sobre todas las preguntas respondida
 * `source_recall_at_k` - Recorrer todas las preguntas y hacer la media.	                  - `results`, `dataset`, `k`
 
 **Hipótesis para el tunning.** El IoU entre la unión, así que un chunk grande contra una fuente pequeña de IoU bajo aunque la contenga entera `(p. ej.chunk 0-2000 y fuente 1900-2100 → IoU 0.048 < 0.05, fallo)`. Chunks más pequeños podrían mejorar el recall. A comprobar con `--max_chunk_size`.
+
+#### Tuning 
+**Tuning** es ajustar parámetros y pequeñas decisiones de tu sistema, probando una cosa cada vez, para que funcione mejor según una métrica. Aquí la métrica es el `recall@5`. Es como afinar una guitarra: el instrumento ya suena, y giras una clavija, escuchas, y vuelves a ajustar.
+
+**En tu proyecto**
+* No es reescribir el programa. Es cambiar valores o pequeñas decisiones y volver a medir:
+
+| Qué se ajusta | Ejemplo |
+|---|---|
+| Tamaño del chunk | 2000 → 1500 → 1000 → 500 |
+| Tokenización | Separar `max_num_seqs` en `max`, `num`, `seqs` |
+| Minúsculas y stemming | “running” y “run” cuentan como la misma palabra |
+| Solape entre chunks | Que cada chunk repita un 10 % del anterior |
+
+**La regla del tuning** un solo cambio por prueba. Si cambias el tamaño del chunk y la tokenización a la vez y el recall sube, no sabes cuál de las 2 cosas ayudó. Y siempre mides antes y después. Ya tienes tu punto de partida:
+
+| Dataset | recall@5 base |
+|---|---:|
+| docs | 81.0 % |
+| code | 51.5 % |
+
+Caulquier cambio que subas esos números es una mejora. Si baja, lo deshaces. Porque haremos esto ahora porque estamos por encima y justos de los mínimos del subject (80 % y 50 %). Como la evaluación real usa **otras preguntas**, un margen de 1 punto es arriesgado. El tunning sirve para subir ese margen.
+
+## Tamaño de chunk: tope duro incluyendo el solape
+
+**Decisión.** Ningún chunk puede medir más de `max_chunk_size` (2000), solape incluido. En `markdown_chunker.py`, tras calcular el inicio con solape, se limita con `new_start = max(new_start, chunk['end'] - max_chunk_size)`.
+
+**Motivo.** El subject (pág. 11) dice que la moulinette rechaza cualquier fuente de más de 2000 caracteres e invalida todo el output. Antes, el solape de 200 se sumaba al chunk ya cortado a 2000: 86 de 1000 resultados de docs medían hasta 2200.
+
+**Alternativa descartada.** Cortar con presupuesto `max_chunk_size - overlap_size` para que todos los chunks mantengan solape. Más cambios y un caso límite si `max_chunk_size` < solape. Queda como posible experimento de tuning.
+
+**Compromiso.** Los chunks que ya salen llenos (secciones largas troceadas por tamaño) no tienen solape; los demás conservan sus 200.
+
+**Verificación.** Máximo 2000 y 0 resultados >2000 en docs (1000) y code (990). Nueva línea base: docs 51/76/82/90 y code 32.3/46.5/50.5/62.6 (recall@1/3/5/10).
