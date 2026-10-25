@@ -1,5 +1,6 @@
 from typing import List
 from src.models import MinimalSource
+from src.tokenizer import tokenize_text
 import bm25s
 
 
@@ -29,7 +30,7 @@ class Retriever:
         Returns:
             A list containing the top-k most relevant sources.
         """
-        tokenized_query = bm25s.tokenize(query)
+        tokenized_query = [tokenize_text(query)]
         results, score = self.bm25_index.retrieve(tokenized_query, k=k)
 
         retrieved = []

@@ -1,4 +1,5 @@
 from src.models import MinimalSource
+from src.tokenizer import tokenize_text
 from typing import List, Tuple
 from pathlib import Path
 import bm25s
@@ -28,7 +29,7 @@ class Indexer:
             texts.append(src.file_path + "\n" + text)
             self.sources_metadata.append(src)
 
-        tokens = bm25s.tokenize(texts)
+        tokens = [tokenize_text(text) for text in texts]
         self.bm25_index = bm25s.BM25()
         self.bm25_index.index(tokens)
 

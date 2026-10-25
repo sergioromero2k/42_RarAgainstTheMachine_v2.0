@@ -218,6 +218,85 @@ El `recall` final es la medida de ese valor sobre todas las preguntas respondida
 
 Caulquier cambio que subas esos números es una mejora. Si baja, lo deshaces. Porque haremos esto ahora porque estamos por encima y justos de los mínimos del subject (80 % y 50 %). Como la evaluación real usa **otras preguntas**, un margen de 1 punto es arriesgado. El tunning sirve para subir ese margen.
 
+## MarkdownChunker
+
+* `MarkdownChunker` Esta clase sirve para dividir un documento Markdown en fragmentos de texto (chunks), procurando respetar los títulos y las frases, limitar el tamaño de cada fragmento y añadir solapamiento entre fragmentos consecutivos. Este tipo de lógica se utiliza, por ejemplo, en sistemas `RAG (Retrieval-Augmented Generation)`, donde se divide documentación para almacenarla en una base de datos vectorial y recuperarla después cuando un usuario hace una pregunta.
+
+El objetivo es dividirlo en fragentos que no superen un tamaño maximo, intentando que los títulos y las frases queden bien organizadas.
+El proceso general es:
+1. Recibir el documento `Markdown`              -> Texto completo del archivo
+2. Detectar los encabezados                     -> Python, ## Variables, ## Funciones
+3. Dividir las secciones demasiado largas       -> Primero por frases y, si hace falta, por palabras
+4. Fusionar fragmentos pequeños                 -> Sin superar el tamaño máximo
+5. Añadir solapamiento y devolver referencias   -> Índices de caracteres dentro del documento original
+
+El código devuelve `MinimalSource` que indican dóndo empieza y termina cada uno dentro del documento original.
+
+* `BaseChunker`: clase padre de la que hereda MarkdownChunker. Probablemente contiene atributos como `minimum_threshold` y `overlap_size`, además del método `_save_fragment`.
+* `re`: módulo de Python para trabajar con expresiones regulares, buscar patrones y dividir cadenas.
+Por ejemplo, `re.split()` permite dividir un texto según un patrón y `re.compile()` prepara un patrón para reutilizarlo.
+
+#### __init__
+* `minimum_threshold` es el umbral mínimo que se utiliza más adelante para decidir si un fragmento pequeño puede fusionarse con el siguiente. Por ejemplo, si un fragmento tiene 40 caracteres y el siguiente 50, su longitud conjunta sería 90. Si el máximo permitido es 150, podrían fusionarse.
+* `overlap_size` indica cuántos caracteres se intenta recuperar del fragmento anterior para que el siguiente comparta parte del texto.
+Tener en cuenta que: el valor 200 es un objetivo para el solapamiento, no una garantía de que siempre habrá exactamente 200 caracteres compartidos.
+* `heading_pattern` Este patrón reconoce el comienzo de los encabezados Markdown.
+| Patrón | Significado |
+|---|---|
+| `^` | Inicio de una línea, porque se utiliza `re.MULTILINE`. |
+| `[ ]{0,3}` | De cero a tres espacios normales al principio. |
+| `#{1,6}` | Entre uno y seis símbolos `#`. |
+| `\s+` | Uno o más espacios en blanco después de los símbolos. |
+
+
+#### _split_long_text
+Este método se encarga de dividir una sección que supera el tamaño máximo permitido.
+* **fragments**: almacenará los fragmentos finales.
+* **parts**: contiene las partes del texto separadas por puntos. Los paréntesis alrededor de \. hacen que el separador también aparezca en el resultado. `re.split(r'(\.)', text)`.
+```py
+text = "Hola. Adiós. Hasta luego."
+
+parts = re.split(r'(\.)', text)
+print(parts) # ["Hola", ".", " Adiós", ".", " Hasta luego", ".", ""]
+```
+
+* **sentences_info**: almacenará las frases reconstruidas.
+* **temp_current_sentence**: acumula las partes de una frase.
+
+Devuelve:
+```py
+[
+    {"text": "Primera frase.", "start": 0, "end": 14},
+    {"text": "Segunda frase.", "start": 14, "end": 28}
+]
+```
+
+## PythonChunker
+Este código implementa un **fragmentador de código de Python (Python chunker)**. Su función es recibir el contenido de un archivo Python, dividirlo en fragmentos de un tamaño máximo y devolver las posiciones de esos fragmentos dentro del archivo original. Esto es útil, por ejemplo, en sistemas de búsqueda semántica, RAG (Retrieval-Augmented Generation) o procesamiento de código con modelos de lenguaje, porque permite trabajar con partes de un archivo en lugar de enviar el archivo completo.
+
+1. Recibe el código Python          -> `content`, `file_path`, `max_chunk_size`
+2. Analiza la sintaxis              -> `ast.parse()` identifica funciones y clases
+3. Divide las estructuras grandes   -> Intenta respetar el tamaño máximo
+4. Devuelve las posiciones          -> Lista de objetos `MinimalSource`
+
+* `ast` importa el módulo `ast`, que permite analizar el código Python y convertirlo en un árbol de sintaxis abstracta (`Abstract Syntax Tree`).
+
+#### `__init__`
+| Parámetro | Significado |
+|---|---|
+| `self` | Hace referencia al objeto que se está creando. |
+| `minimum_threshold` | Por su nombre, parece representar un umbral mínimo de tamaño. |
+| `overlap_size` | Por su nombre, parece representar el solapamiento entre fragmentos. |
+
+#### `chunk`
+Este es el método principal de la clase. Recibe tres argumentos:
+| Argumento | Qué representa | Ejemplo |
+|---|---|---|
+| `content` | El código Python completo como texto. | `"def suma():\n    return 2"` |
+| `file_path` | La ruta del archivo. | `"src/math.py"` |
+| `max_chunk_size` | El máximo de caracteres deseado por fragmento. | `100` |
+
+
 ## Tamaño de chunk: tope duro incluyendo el solape
 
 **Decisión.** Ningún chunk puede medir más de `max_chunk_size` (2000), solape incluido. En `markdown_chunker.py`, tras calcular el inicio con solape, se limita con `new_start = max(new_start, chunk['end'] - max_chunk_size)`.
@@ -233,3 +312,4 @@ Caulquier cambio que subas esos números es una mejora. Si baja, lo deshaces. Po
 ## Texto indexado: ruta + contenido
 Cada chunk se indexa como `file_path + "\n" + contenido`. Las preguntas suelen nombrar el módulo (`triton_flash_attention`) y ese nombre está en la ruta, no en el código. Los rangos de caracteres no cambian. Resultado: code @5 50.5 → 59.6, docs @5 sin cambios (82). Tiene que haber un único documento por chunk en `texts` para que los índices de BM25 coincidan con `sources_metadata`.
 
+| E2 | Tokenizador propio: conserva el identificador entero y añade sus partes (`snake_case` y `CamelCase`) | 56 / 74 / 82 / 87 | 46.5 / 65.7 / 73.7 / 81.8 | Code @5 +14; docs neutral (@10 -3). Se mantiene |
