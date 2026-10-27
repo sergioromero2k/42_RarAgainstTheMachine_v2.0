@@ -1,4 +1,8 @@
 import re
+import Stemmer
+
+
+_STEMMER = Stemmer.Stemmer("english")
 
 
 def tokenize_text(text: str) -> list[str]:
@@ -13,4 +17,6 @@ def tokenize_text(text: str) -> list[str]:
 
         if len(parts) > 1:
             tokens.extend(part for part in parts if len(part) >= 2)
-    return tokens
+
+    stemmed: list[str] = _STEMMER.stemWords(tokens)
+    return stemmed
