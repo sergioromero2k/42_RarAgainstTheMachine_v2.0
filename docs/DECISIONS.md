@@ -1,5 +1,15 @@
 # Decisiones de diseño
 
+
+## Token y chunk
+
+| Qué es | Ejemplo |
+|---|---|
+| Token | Una palabra suelta (o trozo de identificador) que sale de `tokenize_text`: `configur`, `model`, `runner`. |
+| Chunk | Un bloque de texto de un archivo, de hasta 2000 caracteres. Es un documento del índice: un trozo de `profiling.md` con unos 200 tokens dentro. |
+
+Un chunk contiene muchos tokens. Cuando hablo de “longitud” en b, me refiero a cuántos tokens tiene el chunk entero, no a lo larga que sea una palabra concreta.
+
 ## Configuración de proyecto: `uv over pip/installs`
 * `uv` está escrito en Rust, no en Python puro como `pip`. Usa caché global de paquetes y resolución de dependencias en paralelo, así que instalar o sincronizar dependencias es órdenes de magnitud más rápido.
 * Con `pip` normalmente necesitas tres herramientas separadas — `venv` (crear el entorno), `pip` (instalar paquetes) y a veces `pip-tools` (generar lockfile). `uv` hace las tres cosas con un solo comando (`uv sync`), y genera automáticamente `uv.lock` — un `lockfile` que fija versiones exactas de todo el árbol de dependencias, para que el proyecto se reproduzca igual en cualquier máquina (la del evaluador, por ejemplo).
@@ -312,6 +322,27 @@ Este es el método principal de la clase. Recibe tres argumentos:
 ## Texto indexado: ruta + contenido
 Cada chunk se indexa como `file_path + "\n" + contenido`. Las preguntas suelen nombrar el módulo (`triton_flash_attention`) y ese nombre está en la ruta, no en el código. Los rangos de caracteres no cambian. Resultado: code @5 50.5 → 59.6, docs @5 sin cambios (82). Tiene que haber un único documento por chunk en `texts` para que los índices de BM25 coincidan con `sources_metadata`.
 
-| E2 | Tokenizador propio: conserva el identificador entero y añade sus partes (`snake_case` y `CamelCase`) | 56 / 74 / 82 / 87 | 46.5 / 65.7 / 73.7 / 81.8 | Code @5 +14; docs neutral (@10 -3). Se mantiene |
 
+## Conceptos
 * `PyStemmer`, una librería pequeña que ya usa **bm25s** por dentro. Se añade con `uv`, para que `uv sync` lo instale en la evaluación: `uv add pystemmer`.
+
+
+### BM25 - Indexer
+`BM25` puntúa cada chunk según cuánto encajan las palabras de la pregunta. 
+Dos botones ajustan esa puntuación:
+
+`k1`: cuánto vale repetir una palabra. Si la pregunta busca helm y un chunk la nombra 1 vez y otro 10 veces, el segundo no puntúa 10 veces más: el beneficio se va aplanando. k1 decide lo rápido que se aplana.
+* **k1 bajo (0.5):** repetir casi no cuenta, basta con que aparezca.
+* **k1 alto (2.0):** repetir cuenta bastante más.
+`b`: cuánto se penaliza a los chunks largos. Un chunk largo tiene más probabilidades de contener la palabra solo por tener más texto. b corrige eso.
+* **b = 0:** no se penaliza el tamaño.
+* **b = 1:** se penaliza del todo, comparando según la longitud media.
+`delta, method`: detalles de la fórmula que no tocamos.
+
+`puntuación = tf · (k1 + 1) / ( tf + k1 · (1 − b + b · longitud_chunk / longitud_media) )`
+
+Los valores típicos son k1 entre 1.2 y 2.0 y b alrededor de 0.75.
+```py
+uv run python -c " import inspect, bm25s print(inspect.signature(bm25s.BM25.__init__))"
+(self, k1=1.5, b=0.75, delta=0.5, method='lucene', idf_method=None, dtype='float32', int_dtype='int32', corpus=None, backend='numpy', csc_backend='numpy', auto_compile=True)
+```

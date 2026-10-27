@@ -7,7 +7,7 @@ import json
 
 
 BM25_K1 = 1.5
-BM25_B = 0.3
+BM25_B = 0.5
 
 
 class Indexer:
