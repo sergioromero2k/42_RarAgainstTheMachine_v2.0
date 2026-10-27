@@ -313,3 +313,5 @@ Este es el método principal de la clase. Recibe tres argumentos:
 Cada chunk se indexa como `file_path + "\n" + contenido`. Las preguntas suelen nombrar el módulo (`triton_flash_attention`) y ese nombre está en la ruta, no en el código. Los rangos de caracteres no cambian. Resultado: code @5 50.5 → 59.6, docs @5 sin cambios (82). Tiene que haber un único documento por chunk en `texts` para que los índices de BM25 coincidan con `sources_metadata`.
 
 | E2 | Tokenizador propio: conserva el identificador entero y añade sus partes (`snake_case` y `CamelCase`) | 56 / 74 / 82 / 87 | 46.5 / 65.7 / 73.7 / 81.8 | Code @5 +14; docs neutral (@10 -3). Se mantiene |
+
+* `PyStemmer`, una librería pequeña que ya usa **bm25s** por dentro. Se añade con `uv`, para que `uv sync` lo instale en la evaluación: `uv add pystemmer`.

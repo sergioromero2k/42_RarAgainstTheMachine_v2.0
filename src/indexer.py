@@ -6,6 +6,10 @@ import bm25s
 import json
 
 
+BM25_K1 = 1.5
+BM25_B = 0.3
+
+
 class Indexer:
     """Build, persist, and load a BM25 search index and its source metadata."""
 
@@ -30,7 +34,7 @@ class Indexer:
             self.sources_metadata.append(src)
 
         tokens = [tokenize_text(text) for text in texts]
-        self.bm25_index = bm25s.BM25()
+        self.bm25_index = bm25s.BM25(k1=BM25_K1, b=BM25_B)
         self.bm25_index.index(tokens)
 
     def save(self) -> None:
