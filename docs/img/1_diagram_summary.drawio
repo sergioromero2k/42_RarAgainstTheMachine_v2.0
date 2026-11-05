@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net">
   <diagram name="Page-1" id="meT-X8BSzV5CILLARwod">
-    <mxGraphModel dx="5258" dy="4211" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="4948" dy="3930" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -609,20 +609,8 @@
         <mxCell id="4yjAe1USljjWlK3x1Rq2-17" parent="1" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fontColor=light-dark(#000000,#66FFFF);" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;StudentSearchResults&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;-&amp;nbsp;search_results: List[&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(102, 255, 255));&quot;&gt;MinimalSearchResults]&lt;/span&gt;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;- k: int&lt;br&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;&lt;br&gt;&lt;/p&gt;" vertex="1">
           <mxGeometry height="90" width="250" x="720" y="-1530" as="geometry" />
         </mxCell>
-        <mxCell id="4yjAe1USljjWlK3x1Rq2-18" parent="1" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fontColor=light-dark(#000000,#66FFFF);" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;StudentSearchResultsAndAnswer&lt;br&gt;(StudentSearchResults)&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;-&amp;nbsp;&lt;span style=&quot;background-color: transparent;&quot;&gt;search_results: List[MinimalAnswer]&lt;/span&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;&lt;br&gt;&lt;/p&gt;" vertex="1">
+        <mxCell id="4yjAe1USljjWlK3x1Rq2-18" parent="1" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fontColor=light-dark(#000000,#66FFFF);" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;StudentSearchResultsAndAnswer&lt;br&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;-&amp;nbsp;&lt;span style=&quot;background-color: transparent;&quot;&gt;search_results: List[MinimalAnswer]&lt;/span&gt;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;&lt;span style=&quot;background-color: transparent;&quot;&gt;- k: int&lt;/span&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;&lt;br&gt;&lt;/p&gt;" vertex="1">
           <mxGeometry height="80" width="210" x="740" y="-1391.56" as="geometry" />
-        </mxCell>
-        <mxCell id="4yjAe1USljjWlK3x1Rq2-19" edge="1" parent="1" source="4yjAe1USljjWlK3x1Rq2-18" style="endArrow=block;endSize=16;endFill=0;html=1;rounded=0;entryX=0.536;entryY=1.03;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0.54;exitY=0.003;exitDx=0;exitDy=0;exitPerimeter=0;fontColor=light-dark(#000000,#66FFFF);" target="4yjAe1USljjWlK3x1Rq2-17" value="">
-          <mxGeometry relative="1" width="160" x="0.0102" as="geometry">
-            <mxPoint as="offset" />
-            <mxPoint x="933" y="-1074" as="sourcePoint" />
-            <mxPoint x="930" y="-1130" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="u9dZVS9WZMmbCBGjjeIo-1" connectable="0" parent="4yjAe1USljjWlK3x1Rq2-19" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" value="es" vertex="1">
-          <mxGeometry relative="1" x="-0.3466" as="geometry">
-            <mxPoint as="offset" />
-          </mxGeometry>
         </mxCell>
         <mxCell id="4yjAe1USljjWlK3x1Rq2-20" edge="1" parent="1" source="4yjAe1USljjWlK3x1Rq2-17" style="endArrow=block;endSize=16;endFill=0;html=1;rounded=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;fontColor=light-dark(#000000,#66FFFF);" target="4yjAe1USljjWlK3x1Rq2-6" value="es">
           <mxGeometry relative="1" width="160" as="geometry">
@@ -676,6 +664,12 @@
         <mxCell id="u_uYa7TjmVCTCh9tQKVq-14" connectable="0" parent="u_uYa7TjmVCTCh9tQKVq-13" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="compone" vertex="1">
           <mxGeometry relative="1" x="-0.1911" y="3" as="geometry">
             <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="_TrR4xyfqnmmdn4ejRIC-1" edge="1" parent="1" source="4yjAe1USljjWlK3x1Rq2-18" style="endArrow=block;endSize=16;endFill=0;html=1;rounded=0;entryX=1;entryY=0.75;entryDx=0;entryDy=0;exitX=0;exitY=0.394;exitDx=0;exitDy=0;fontColor=light-dark(#000000,#66FFFF);exitPerimeter=0;" target="4yjAe1USljjWlK3x1Rq2-6" value="es">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <mxPoint x="790" y="-1380" as="sourcePoint" />
+            <mxPoint x="700" y="-1255" as="targetPoint" />
           </mxGeometry>
         </mxCell>
       </root>

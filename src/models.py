@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Data models for the RAG against the machine project.
 These models ensure type safety and data integrity using Pydantic.
@@ -13,6 +12,8 @@ class MinimalSource(BaseModel):
     """
     Represents a specific fragment of a file in the repository.
     Includes the file path and the exact character boundaries.
+    The fragment is content[first_character_index:last_character_index], so
+    the last index is exclusive.
     """
 
     file_path: str
@@ -79,7 +80,7 @@ class StudentSearchResults(BaseModel):
     k: int
 
 
-class StudentSearchResultsAndAnswer(StudentSearchResults):
+class StudentSearchResultsAndAnswer(BaseModel):
     """
     The final output containing both retrieved sources and generated answers.
     Used for the 'answer_dataset' command.
