@@ -2,9 +2,14 @@ from pathlib import Path
 from zipfile import ZipFile, BadZipFile
 from typing import List, Tuple
 from src.models import MinimalSource
+from src.errors import RagError
 from src.chunkers.base_chunker import BaseChunker
 from tqdm import tqdm
 import sys
+
+
+MIN_CHUNK_SIZE = 1
+MAX_CHUNK_SIZE = 2000
 
 
 class Ingestion:
@@ -21,21 +26,21 @@ class Ingestion:
         """Extract the repository archive if it is not already available.
 
         Raises:
-            FileNotFoundError: if neither the repository nor its zip exist.
-            ValueError: if the zip file is corrupt.
+            RagError: if neither the repository nor its zip exist,
+                or if the zip file is corrupt.
         """
         path = Path(self.raw_data_path)
         if path.exists():
             return
         zip_path = Path(self.raw_data_path + ".zip")
         if not zip_path.is_file():
-            raise FileNotFoundError(
+            raise RagError(
                 f"Repository not found: {path} (and no {zip_path})")
         try:
             with ZipFile(zip_path, "r") as zip_file:
                 zip_file.extractall(zip_path.parent)
         except BadZipFile as error:
-            raise ValueError(f"Corrupt zip file: {zip_path}") from error
+            raise RagError(f"Corrupt zip file: {zip_path}") from error
 
     def _read_file(self, path: Path) -> str | None:
         """Return the file content, or None if it cannot be read."""
@@ -50,20 +55,22 @@ class Ingestion:
         """Read supported files and return their chunks with metadata.
 
         Raises:
-            ValueError: if max_chunk_size is lower than 1 or no file is found.
+            RagError: if max_chunk_size is lower than 1 or no file is found.
         """
-        if max_chunk_size < 1:
-            raise ValueError("max_chunk_size must be a positive integer")
-        if max_chunk_size > 2000:
-            print("Warning: chunks above 2000 characters are rejected "
-                  "by the grader", file=sys.stderr)
+        if (not isinstance(max_chunk_size, int)
+                or max_chunk_size < MIN_CHUNK_SIZE):
+            raise RagError(
+                f"max_chunk_size must be an integer >= {MIN_CHUNK_SIZE}")
+        if max_chunk_size > MAX_CHUNK_SIZE:
+            print(f"Warning: chunks above {MAX_CHUNK_SIZE} characters "
+                  "are rejected by the grader", file=sys.stderr)
         self.ensure_repo_extracted()
         repo = Path(self.raw_data_path)
         files = sorted(
             p for p in repo.rglob("*")
             if p.is_file() and p.suffix.lower() in self.chunkers)
         if not files:
-            raise ValueError(f"No supported files found in {repo}")
+            raise RagError(f"No supported files found in {repo}")
 
         results: List[Tuple[MinimalSource, str]] = []
         for path in tqdm(files, desc="Chunking"):
