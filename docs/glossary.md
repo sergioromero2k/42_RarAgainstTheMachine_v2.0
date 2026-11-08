@@ -15,4 +15,10 @@ data/raw/vllm-0.10.1/   (archivos .py y .md)
    índice → guardado en data/processed/
 
 Pregunta → tokenizar → BM25 puntúa chunks → devuelve los top-k
-``
+```
+
+## Chunks
+* `BaseChunker`: clase base que define las reglas comunes que deben seguir todos los chunkers.
+* `MarkdownChunker`: divide archivos Markdown (.md) respetando, en la medida de lo posible, sus títulos y secciones.
+* `PythonChunker`: divide archivos Python (.py) intentando respetar sus funciones y clases.
+
