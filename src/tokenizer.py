@@ -1,3 +1,6 @@
+
+"""Tokenizer shared by the indexer and the retriever."""
+
 import re
 import Stemmer
 
@@ -6,7 +9,17 @@ _STEMMER = Stemmer.Stemmer("english")
 
 
 def tokenize_text(text: str) -> list[str]:
-    """Return lowercase tokens, including parts of compound identifiers."""
+    """Return lowercase stemmed tokens, including compound identifier parts.
+
+    Each word is kept whole and also split on underscores and camelCase,
+    so ``max_num_seqs`` and ``maxNumSeqs`` share the tokens max, num, seq.
+
+    Args:
+        text: Raw text of a chunk or a user query.
+
+    Returns:
+        List of stemmed tokens; empty if the text has no word of 2+ chars.
+    """
     tokens: list[str] = []
 
     for word in re.findall(r"\w\w+", text):

@@ -1,4 +1,4 @@
-from src.chunkers.base_chunker import BaseChunker
+from src.chunkers.base_chunker import BaseChunker, MINIMUM_THRESHOLD, OVERLAP_SIZE
 from typing import List
 from src.models import MinimalSource
 import re
@@ -7,7 +7,7 @@ import re
 class MarkdownChunker(BaseChunker):
     """"""
 
-    def __init__(self, minimum_threshold: int = 100, overlap_size: int = 200):
+    def __init__(self, minimum_threshold: int = MINIMUM_THRESHOLD, overlap_size: int = OVERLAP_SIZE):
         super().__init__(minimum_threshold, overlap_size)
         self.heading_pattern = re.compile(r'^[ ]{0,3}#{1,6}\s+', re.MULTILINE)
 

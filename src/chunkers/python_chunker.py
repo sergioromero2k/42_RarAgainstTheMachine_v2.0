@@ -1,13 +1,15 @@
-from src.chunkers.base_chunker import BaseChunker
-from src.models import MinimalSource
-from typing import List
 import ast
+from typing import List
+from src.models import MinimalSource
+from src.chunkers.base_chunker import BaseChunker, MINIMUM_THRESHOLD, OVERLAP_SIZE
 
 
 class PythonChunker(BaseChunker):
     """"""
 
-    def __init__(self, minimum_threshold: int = 100, overlap_size: int = 200):
+    def __init__(
+            self, minimum_threshold: int = MINIMUM_THRESHOLD,
+            overlap_size: int = OVERLAP_SIZE):
         super().__init__(minimum_threshold, overlap_size)
 
     def chunk(

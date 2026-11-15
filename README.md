@@ -10,9 +10,11 @@ Lorem Ipsum es simplemente el texto de relleno de las imprentas y archivos de te
 Hemos capado el ingestion, cambiado a prueba de fallos.
 
 * chunkers/base_chunker.py, python_chunker.py y markdown_chunker.py
+
 * tokenizer.py
 * indexer.py
 * retriever.py
+
 * evaluator.py
 * generator.py
 * cli.py y __main__.py

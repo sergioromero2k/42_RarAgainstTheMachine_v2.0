@@ -14,7 +14,7 @@ class Indexer:
     """Build, persist, and load a BM25 search index and its source metadata."""
 
     def __init__(self, index_path: str) -> None:
-        """"Initialize the indexer with a storage path."""
+        """Initialize the indexer with a storage path."""
         self.index_path: str = index_path
         self.bm25_index: bm25s.BM25 | None = None
         self.sources_metadata: List[MinimalSource] = []
