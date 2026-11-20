@@ -23,6 +23,7 @@ def tokenize_text(text: str) -> list[str]:
     tokens: list[str] = []
 
     for word in re.findall(r"\w\w+", text):
+        # \w: representa un carácter alfanumérico o guion bajo.
         tokens.append(word.lower())
 
         parts = word.replace("_", " ")

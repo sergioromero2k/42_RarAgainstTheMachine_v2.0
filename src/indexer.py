@@ -5,9 +5,10 @@ from pathlib import Path
 import bm25s
 import json
 
-
 BM25_K1 = 1.5
+# Este parámetro controla cómo afecta la frecuencia de aparición de un término a la puntuación de relevancia.
 BM25_B = 0.5
+# Este controla cuánto influye la longitud del documento en el cálculo de relevancia.
 
 
 class Indexer:
@@ -46,7 +47,7 @@ class Indexer:
         for src in self.sources_metadata:
             list_dict.append(src.model_dump())
 
-        path_metadata = self.index_path + "/sources_metadata.json"
+        path_metadata = Path(self.index_path) + "/sources_metadata.json"
         with open(path_metadata, "w") as f:
             json.dump(list_dict, f)
 
@@ -57,8 +58,8 @@ class Indexer:
         self.sources_metadata = []
 
         with open(path_metadata, "r") as f:
-            list_dictionario = json.load(f)
+            list_dictionaries = json.load(f)
 
-        for d in list_dictionario:
+        for d in list_dictionaries:
             source = MinimalSource(**d)
             self.sources_metadata.append(source)
