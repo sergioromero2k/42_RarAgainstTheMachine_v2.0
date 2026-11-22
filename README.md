@@ -12,10 +12,9 @@ Hemos capado el ingestion, cambiado a prueba de fallos.
 * indexer.py    - Estudiado
 * retriever.py  - Estudiado
 * evaluator.py  - Estudiado
+* generator.py  - Maso menos otro repaso
+* Limpieza del repo, Makefile, .gitignore y README - OK
 
 
 * chunkers/base_chunker.py, python_chunker.py y markdown_chunker.py
-
-* generator.py
 * cli.py y __main__.py
-* Limpieza del repo, Makefile, .gitignore y README

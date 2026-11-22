@@ -23,7 +23,7 @@ class MinimalSource(BaseModel):
 
 class UnansweredQuestion(BaseModel):
     """
-    Rerpresents a question that has not yet been processed by the RAG system.
+    Represents a question that has not yet been processed by the RAG system.
     Includes a unique identifier and the question text.
     """
 
@@ -86,3 +86,4 @@ class StudentSearchResultsAndAnswer(BaseModel):
     Used for the 'answer_dataset' command.
     """
     search_results: List[MinimalAnswer]
+    k: int

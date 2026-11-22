@@ -23,15 +23,6 @@ def iou(a_start: int, a_end: int, b_start: int, b_end: int) -> float:
     return intersection/union
 
 
-def build_results_index(
-        results: StudentSearchResults) -> dict[str, list[MinimalSource]]:
-    """Map each question_id to its retrieved sources."""
-    index = {}
-    for r in results.search_results:
-        index[r.question_id] = r.retrieved_sources
-    return index
-
-
 def is_match(retrieved: MinimalSource, correct: MinimalSource) -> bool:
     """Returns True if both point to the same file and overlap enough."""
     if retrieved.file_path != correct.file_path:
@@ -61,6 +52,15 @@ def question_recall_at_k(
                 found += 1
                 break
     return found / len(correct)
+
+
+def build_results_index(
+        results: StudentSearchResults) -> dict[str, list[MinimalSource]]:
+    """Map each question_id to its retrieved sources."""
+    index = {}
+    for r in results.search_results:
+        index[r.question_id] = r.retrieved_sources
+    return index
 
 
 def source_recall_at_k(
