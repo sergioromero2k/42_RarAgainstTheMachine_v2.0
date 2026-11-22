@@ -1,14 +1,15 @@
 from src.models import MinimalSource
 from src.tokenizer import tokenize_text
+from src.errors import RagError
+from tqdm import tqdm
 from typing import List, Tuple
 from pathlib import Path
 import bm25s
 import json
 
+METADATA_FILE = "sources_metadata.json"
 BM25_K1 = 1.5
-# Este parámetro controla cómo afecta la frecuencia de aparición de un término a la puntuación de relevancia.
 BM25_B = 0.5
-# Este controla cuánto influye la longitud del documento en el cálculo de relevancia.
 
 
 class Indexer:
@@ -26,40 +27,61 @@ class Indexer:
         Args:
             chunks: A list of tuples containing source metadata and the
                 corresponding text content.
+
+        Raises:
+            RagError: if there are no chunks to index.
         """
-        texts = []
+        if not chunks:
+            raise RagError("No chunks to index")
+        texts: List[str] = []
         self.sources_metadata = []
 
         for src, text in chunks:
             texts.append(src.file_path + "\n" + text)
             self.sources_metadata.append(src)
 
-        tokens = [tokenize_text(text) for text in texts]
+        tokens = [tokenize_text(text)
+                  for text in tqdm(texts, desc="Tokenizing")]
         self.bm25_index = bm25s.BM25(k1=BM25_K1, b=BM25_B)
         self.bm25_index.index(tokens)
 
     def save(self) -> None:
-        """Save the BM25 index and source metadata to disk."""
-        Path(self.index_path).mkdir(parents=True, exist_ok=True)
-        self.bm25_index.save(self.index_path)
+        """Save the BM25 index and source metadata to disk.
 
-        list_dict = []
-        for src in self.sources_metadata:
-            list_dict.append(src.model_dump())
-
-        path_metadata = Path(self.index_path) + "/sources_metadata.json"
-        with open(path_metadata, "w") as f:
-            json.dump(list_dict, f)
+        Raises:
+            RagError: if the index was not built or cannot be written.
+        """
+        if self.bm25_index is None:
+            raise RagError("Nothing to save: the index has not been built")
+        directory = Path(self.index_path)
+        try:
+            directory.mkdir(parents=True, exist_ok=True)
+            self.bm25_index.save(self.index_path)
+            raw = [src.model_dump() for src in self.sources_metadata]
+            with open(directory / METADATA_FILE, "w", encoding="utf-8") as f:
+                json.dump(raw, f)
+        except OSError as error:
+            raise RagError(
+                f"Cannot write index to {directory}: {error}") from error
 
     def load(self) -> None:
-        """Load the BM25 index and source metadata from disk."""
-        self.bm25_index = bm25s.BM25.load(self.index_path)
-        path_metadata = self.index_path + "/sources_metadata.json"
-        self.sources_metadata = []
+        """Load the BM25 index and source metadata from disk.
 
-        with open(path_metadata, "r") as f:
-            list_dictionaries = json.load(f)
-
-        for d in list_dictionaries:
-            source = MinimalSource(**d)
-            self.sources_metadata.append(source)
+        Raises:
+            RagError: if the index is missing, incomplete or corrupt.
+        """
+        directory = Path(self.index_path)
+        metadata_path = directory / METADATA_FILE
+        if not metadata_path.is_file():
+            raise RagError(
+                f"No index found in {directory}. "
+                "Run the index command first.")
+        try:
+            self.bm25_index = bm25s.BM25.load(self.index_path)
+            with open(metadata_path, "r", encoding="utf-8") as f:
+                raw = json.load(f)
+            self.sources_metadata = [MinimalSource(**item) for item in raw]
+        except (OSError, ValueError, KeyError, TypeError) as error:
+            raise RagError(
+                f"Corrupt or incomplete index in {directory}: {error}"
+            ) from error
