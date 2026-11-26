@@ -42,7 +42,7 @@ class Retriever:
             return []
 
         k = min(k, len(self.sources_metadata))
-        results, scores = self.bm25_index.retrieve([tokens], k)
+        results, scores = self.bm25_index.retrieve([tokens], k=k)
 
         retrieved: List[MinimalSource] = []
         for pos, score in zip(results[0], scores[0]):
