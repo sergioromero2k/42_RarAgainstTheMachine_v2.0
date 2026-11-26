@@ -1,10 +1,11 @@
-from pathlib import Path
 from src.models import (
     MinimalSource,
     StudentSearchResults,
     RagDataset,
     AnsweredQuestion,
 )
+from src.loading import load_dataset, load_search_results
+from src.errors import RagError
 
 
 IOU_THRESHOLD = 0.05
@@ -24,18 +25,16 @@ def iou(a_start: int, a_end: int, b_start: int, b_end: int) -> float:
 
 
 def is_match(retrieved: MinimalSource, correct: MinimalSource) -> bool:
-    """Returns True if both point to the same file and overlap enough."""
+    """Return True if both point to the same file and overlap enough."""
     if retrieved.file_path != correct.file_path:
         return False
 
-    a_start = retrieved.first_character_index
-    a_end = retrieved.last_character_index
-    b_start = correct.first_character_index
-    b_end = correct.last_character_index
-    iou_match = iou(a_start, a_end, b_start, b_end)
-    if (iou_match >= IOU_THRESHOLD):
-        return True
-    return False
+    overlap = iou(
+        retrieved.first_character_index,
+        retrieved.last_character_index,
+        correct.first_character_index,
+        correct.last_character_index)
+    return overlap >= IOU_THRESHOLD
 
 
 def question_recall_at_k(
@@ -57,7 +56,7 @@ def question_recall_at_k(
 def build_results_index(
         results: StudentSearchResults) -> dict[str, list[MinimalSource]]:
     """Map each question_id to its retrieved sources."""
-    index = {}
+    index: dict[str, list[MinimalSource]] = {}
     for r in results.search_results:
         index[r.question_id] = r.retrieved_sources
     return index
@@ -75,7 +74,7 @@ def source_recall_at_k(
         if not isinstance(question, AnsweredQuestion):
             continue
         total += 1
-        retrieved = index[question.question_id]
+        retrieved = index.get(question.question_id, [])
         score_sum += question_recall_at_k(retrieved, question.sources, k)
     if total == 0:
         return 0.0
@@ -84,11 +83,32 @@ def source_recall_at_k(
 
 def evaluate_files(student_search_results_path: str,
                    dataset_path: str, k: int = 10) -> None:
-    """Print Recall@k for the given search results and dataset."""
-    results = StudentSearchResults.model_validate_json(
-        Path(student_search_results_path).read_text())
-    dataset = RagDataset.model_validate_json(
-        Path(dataset_path).read_text())
+    """Print Recall@k for the given search results and dataset.
+
+    Args:
+        student_search_results_path: JSON with the search results.
+        dataset_path: JSON of the ground-truth (answered) dataset.
+        k: Largest k to report.
+
+    Raises:
+        RagError: on invalid k, unreadable files or mismatched datasets.
+    """
+    if not isinstance(k, int) or k < 1:
+        raise RagError("k must be an integer >= 1")
+    results = load_search_results(student_search_results_path)
+    dataset = load_dataset(dataset_path)
+
+    answered = [q for q in dataset.rag_questions
+                if isinstance(q, AnsweredQuestion)]
+    if not answered:
+        raise RagError(
+            "The dataset has no answered questions: "
+            "use the AnsweredQuestions file")
+    index = build_results_index(results)
+    if not any(q.question_id in index for q in answered):
+        raise RagError(
+            "No question of the dataset appears in the search results: "
+            "are they from the same dataset?")
 
     for n in RECALL_KS:
         if n > k:
