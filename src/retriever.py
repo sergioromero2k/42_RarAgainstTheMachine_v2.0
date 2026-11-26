@@ -1,6 +1,7 @@
 from typing import List
 from src.models import MinimalSource
 from src.tokenizer import tokenize_text
+from src.errors import RagError
 import bm25s
 
 
@@ -28,13 +29,23 @@ class Retriever:
             k: Maximum number of sources to retrieve.
 
         Returns:
-            A list containing the top-k most relevant sources.
+            Up to k relevant sources, best first. Empty if the query has
+            no usable words or nothing in the index matches it.
+
+        Raises:
+            RagError: if k is not a positive integer.
         """
-        tokenized_query = [tokenize_text(query)]
-        results, score = self.bm25_index.retrieve(tokenized_query, k=k)
+        if not isinstance(k, int) or k < 1:
+            raise RagError("k must be an integer >= 1")
+        tokens = tokenize_text(str(query))
+        if not tokens or not self.sources_metadata:
+            return []
 
-        retrieved = []
-        for pos in results[0]:
-            retrieved.append(self.sources_metadata[pos])
+        k = min(k, len(self.sources_metadata))
+        results, scores = self.bm25_index.retrieve([tokens], k)
 
+        retrieved: List[MinimalSource] = []
+        for pos, score in zip(results[0], scores[0]):
+            if score > 0:
+                retrieved.append(self.sources_metadata[pos])
         return retrieved
