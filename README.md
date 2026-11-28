@@ -8,10 +8,10 @@ Lorem Ipsum es simplemente el texto de relleno de las imprentas y archivos de te
 * tokenizer.py              - OK, OK, OK
 * indexer.py                - OK, OK, OK
 * retriever.py              - OK, OK, OK
+* evaluator.py              - OK, OK, OK
+* generator.py              - OK, OK, OK
+* cli.py y __main__.py      
 
-* evaluator.py  - Estudiado
-* generator.py  - Maso menos otro repaso
 
 
 * chunkers/base_chunker.py, python_chunker.py y markdown_chunker.py
-* cli.py y __main__.py

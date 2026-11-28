@@ -69,7 +69,18 @@ Tabla: qué hace cada función
 | `answer()` | Recibe la pregunta y las fuentes, prepara el prompt, se lo pasa a Qwen y devuelve la respuesta generada. |
 
 
+### Main
+---
+Es el **punto de entrada** del paquete `src`. Cuando ejecutas `python -m src ...`, Python busca ese arcivo y lo ejecuta. Sin él, `python -m src` daría `error: "No module named src.main"`
 
+Tu proyecto tiene tres capas:
+```
+terminal  →  __main__.py  →  cli.py (RAGSystem)  →  indexer / retriever / generator...
+ (usuario)    (entrada)       (comandos)              (la lógica)
+```
+* `cli.py` define qué comandos existen (`index`, `search`, `answer`, `evaluate`...).
+__main__.py define cómo arranca el programa y qué pasa si algo falla.
+El resto hace el trabajo real.
 
 
 Por ejemplo, imaginemos que tenemos tres documentos:
